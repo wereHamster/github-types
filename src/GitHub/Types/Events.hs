@@ -10,6 +10,7 @@ import Data.Aeson
 import Data.Text
 
 import GitHub.Types.Base
+import GitHub.Types.Repository
 
 
 
@@ -67,7 +68,20 @@ instance FromJSON DeploymentEvent where
 
 data DeploymentStatusEvent = DeploymentStatusEvent
     { deploymentStatusEventState       :: State
-    , deploymentStatusEventTargetUrl   :: Text
-    , deploymentStatusEventDeployment  :: Text
-    , deploymentStatusEventDescription :: Text
+      -- ^ The new state.
+    , deploymentStatusEventTargetUrl   :: Maybe Text
+      -- ^ The optional link added to the status.
+    , deploymentStatusEventDeployment  :: Deployment
+      -- ^ The deployment that this status is associated with.
+    , deploymentStatusEventDescription :: Maybe Text
+      -- ^ The optional human-readable description added to the status.
     } deriving (Eq, Show)
+
+instance FromJSON DeploymentStatusEvent where
+    parseJSON (Object x) = DeploymentStatusEvent
+        <$> x .: "state"
+        <*> x .: "target_url"
+        <*> x .: "deployment"
+        <*> x .: "description"
+
+    parseJSON _ = mzero

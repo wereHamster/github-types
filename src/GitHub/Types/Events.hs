@@ -96,6 +96,8 @@ data DeploymentStatusEvent = DeploymentStatusEvent
       -- ^ The deployment that this status is associated with.
     , deploymentStatusEventDescription :: Maybe Text
       -- ^ The optional human-readable description added to the status.
+    , deploymentStatusEventRepository  :: Repository
+      -- ^ The repository for which the deployment was created (UNDOCUMENTED).
     } deriving (Eq, Show)
 
 instance FromJSON DeploymentStatusEvent where
@@ -104,5 +106,6 @@ instance FromJSON DeploymentStatusEvent where
         <*> x .: "target_url"
         <*> x .: "deployment"
         <*> x .: "description"
+        <*> x .: "repository"
 
     parseJSON _ = mzero

@@ -17,7 +17,6 @@ import Data.Text
 data Owner = Owner
     { ownerId        :: Int
     , ownerLogin     :: Text
-    , ownerName      :: Text
     , ownerType      :: Text
     } deriving (Eq, Show)
 
@@ -26,7 +25,6 @@ instance FromJSON Owner where
     parseJSON (Object x) = Owner
         <$> x .: "id"
         <*> x .: "login"
-        <*> x .: "name"
         <*> x .: "type"
 
     parseJSON _ = mzero

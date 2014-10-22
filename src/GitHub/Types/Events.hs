@@ -55,30 +55,15 @@ instance FromJSON CommitCommentEvent where
 -- DeploymentEvent
 
 data DeploymentEvent = DeploymentEvent
-    { deploymentEventId          :: Int
-      -- ^ The deployment Id (UNDOCUMENTED).
-    , deploymentEventSha         :: Text
-      -- The commit SHA for which this deployment was created.
-    , deploymentEventName        :: Text
-      -- ^ Name of repository for this deployment, formatted as :owner/:repo.
-    , deploymentEventPayload     :: Value
-      -- ^ The optional extra information for this deployment.
-    , deploymentEventEnvironment :: Text
-      -- ^ The optional environment to deploy to. Default: "production"
-    , deploymentEventDescription :: Maybe Text
-      -- ^ The optional human-readable description added to the deployment.
+    { deploymentEventDeployment  :: Deployment
+      -- ^ The deployment.
     , deploymentEventRepository  :: Repository
       -- ^ The repository for which the deployment was created (UNDOCUMENTED).
     } deriving (Eq, Show)
 
 instance FromJSON DeploymentEvent where
     parseJSON (Object x) = DeploymentEvent
-        <$> x .: "id"
-        <*> x .: "sha"
-        <*> x .: "name"
-        <*> x .: "payload"
-        <*> x .: "environment"
-        <*> x .: "description"
+        <$> x .: "deployment"
         <*> x .: "repository"
 
     parseJSON _ = mzero
@@ -88,24 +73,18 @@ instance FromJSON DeploymentEvent where
 -- DeploymentStatusEvent
 
 data DeploymentStatusEvent = DeploymentStatusEvent
-    { deploymentStatusEventState       :: State
-      -- ^ The new state.
-    , deploymentStatusEventTargetUrl   :: Maybe Text
-      -- ^ The optional link added to the status.
-    , deploymentStatusEventDeployment  :: Deployment
-      -- ^ The deployment that this status is associated with.
-    , deploymentStatusEventDescription :: Maybe Text
-      -- ^ The optional human-readable description added to the status.
-    , deploymentStatusEventRepository  :: Repository
+    { deploymentStatusEventDeploymentStatus :: DeploymentStatus
+      -- ^ The deployment status.
+    , deploymentStatusEventDeployment       :: Deployment
+      -- ^ The deployment which the status affects.
+    , deploymentStatusEventRepository       :: Repository
       -- ^ The repository for which the deployment was created (UNDOCUMENTED).
     } deriving (Eq, Show)
 
 instance FromJSON DeploymentStatusEvent where
     parseJSON (Object x) = DeploymentStatusEvent
-        <$> x .: "state"
-        <*> x .: "target_url"
+        <$> x .: "deployment_status"
         <*> x .: "deployment"
-        <*> x .: "description"
         <*> x .: "repository"
 
     parseJSON _ = mzero

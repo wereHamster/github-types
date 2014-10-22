@@ -33,9 +33,11 @@ data Deployment = Deployment
     { deploymentId          :: Int
     , deploymentSha         :: Text
     , deploymentRef         :: Text
+    , deploymentTask        :: Text
+    , deploymentName        :: Text
     , deploymentEnvironment :: Text
-    , deploymentDescription :: Text
     , deploymentPayload     :: Value
+    , deploymentDescription :: Text
     } deriving (Eq, Show)
 
 instance FromJSON Deployment where
@@ -43,8 +45,29 @@ instance FromJSON Deployment where
         <$> x .: "id"
         <*> x .: "sha"
         <*> x .: "ref"
+        <*> x .: "task"
+        <*> x .: "name"
         <*> x .: "environment"
-        <*> x .: "description"
         <*> x .: "payload"
+        <*> x .: "description"
+
+    parseJSON _ = mzero
+
+
+data DeploymentStatus = DeploymentStatus
+    { deploymentStatusId             :: Int
+    , deploymentStatusState          :: Text
+    , deploymentStatusTargetUrl      :: Maybe Text
+    , deploymentStatusDescription    :: Maybe Text
+    , deploymentStatusDeploymentUrl  :: Maybe Text
+    } deriving (Eq, Show)
+
+instance FromJSON DeploymentStatus where
+    parseJSON (Object x) = DeploymentStatus
+        <$> x .: "id"
+        <*> x .: "state"
+        <*> x .: "target_url"
+        <*> x .: "description"
+        <*> x .: "deployment_url"
 
     parseJSON _ = mzero

@@ -8,6 +8,7 @@ import Control.Monad
 
 import Data.Aeson
 import Data.Aeson.Types
+import Data.Monoid
 import Data.Text
 
 import GitHub.Types.Base
@@ -33,7 +34,7 @@ eventParser :: Text -> Value -> Parser Event
 eventParser "commit_comment"    x = CommitCommentEventType    <$> parseJSON x
 eventParser "deployment"        x = DeploymentEventType       <$> parseJSON x
 eventParser "deployment_status" x = DeploymentStatusEventType <$> parseJSON x
-eventParser _                   _ = mzero
+eventParser eventType           _ = fail $ "Unknown event type: " <> unpack eventType
 
 
 
@@ -48,7 +49,7 @@ instance FromJSON CommitCommentEvent where
     parseJSON (Object x) = CommitCommentEvent
         <$> x .: "repository"
 
-    parseJSON _ = mzero
+    parseJSON _ = fail "CommitCommentEvent"
 
 
 ------------------------------------------------------------------------------
@@ -66,7 +67,7 @@ instance FromJSON DeploymentEvent where
         <$> x .: "deployment"
         <*> x .: "repository"
 
-    parseJSON _ = mzero
+    parseJSON _ = fail "DeploymentEvent"
 
 
 ------------------------------------------------------------------------------
@@ -87,4 +88,4 @@ instance FromJSON DeploymentStatusEvent where
         <*> x .: "deployment"
         <*> x .: "repository"
 
-    parseJSON _ = mzero
+    parseJSON _ = fail "DeploymentStatusEvent"

@@ -34,7 +34,6 @@ data Deployment = Deployment
     , deploymentSha         :: Text
     , deploymentRef         :: Text
     , deploymentTask        :: Text
-    , deploymentName        :: Text
     , deploymentEnvironment :: Text
     , deploymentPayload     :: Value
     , deploymentDescription :: Text
@@ -46,7 +45,6 @@ instance FromJSON Deployment where
         <*> x .: "sha"
         <*> x .: "ref"
         <*> x .: "task"
-        <*> x .: "name"
         <*> x .: "environment"
         <*> x .: "payload"
         <*> x .: "description"

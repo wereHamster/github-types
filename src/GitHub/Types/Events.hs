@@ -87,7 +87,7 @@ data Payload
     | ReleaseEventPayload                  ReleaseEvent
     | GollumEventPayload                   GollumEvent
     | MemberEventPayload                   MemberEvent
-    | PublicEventPayload                   ()
+    | PublicEventPayload                   Value
     deriving (Eq, Show)
 
 

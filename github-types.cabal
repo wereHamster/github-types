@@ -23,10 +23,11 @@ library
      , text
      , time
 
-    exposed-modules:     GitHub.Types
-    exposed-modules:     GitHub.Types.Base
-    exposed-modules:     GitHub.Types.Repository
-    exposed-modules:     GitHub.Types.Events
+    exposed-modules:
+       GitHub.Types
+     , GitHub.Types.Base
+     , GitHub.Types.Repository
+     , GitHub.Types.Events
 
 
 test-suite spec

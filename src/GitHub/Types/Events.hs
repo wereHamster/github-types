@@ -9,8 +9,9 @@ import Control.Monad
 import Data.Aeson
 import Data.Aeson.Types
 import Data.Monoid
-import Data.Text
+import Data.Text hiding (find)
 import Data.Time
+import Data.List
 
 import GitHub.Types.Base
 import GitHub.Types.Repository
@@ -39,7 +40,7 @@ instance FromJSON Event where
             <*> o .: "repo"
             <*> o .: "created_at"
             <*> o .: "public"
-            <*> (payloadParser eventType =<< o .: "payload")
+            <*> (eventPayloadParser eventType =<< o .: "payload")
 
     parseJSON _ = fail "Event"
 
@@ -90,35 +91,72 @@ data Payload
     deriving (Eq, Show)
 
 
-payloadParser :: Text -> Value -> Parser Payload
-payloadParser "CommitCommentEvent"            x = CommitCommentEventPayload            <$> parseJSON x
-payloadParser "DeploymentEvent"               x = DeploymentEventPayload               <$> parseJSON x
-payloadParser "DeploymentStatusEvent"         x = DeploymentStatusEventPayload         <$> parseJSON x
-payloadParser "PushEvent"                     x = PushEventPayload                     <$> parseJSON x
-payloadParser "IssuesEvent"                   x = IssuesEventPayload                   <$> parseJSON x
-payloadParser "IssueCommentEvent"             x = IssueCommentEventPayload             <$> parseJSON x
-payloadParser "CreateEvent"                   x = CreateEventPayload                   <$> parseJSON x
-payloadParser "PullRequestEvent"              x = PullRequestEventPayload              <$> parseJSON x
-payloadParser "PullRequestReviewCommentEvent" x = PullRequestReviewCommentEventPayload <$> parseJSON x
-payloadParser "WatchEvent"                    x = WatchEventPayload                    <$> parseJSON x
-payloadParser "DeleteEvent"                   x = DeleteEventPayload                   <$> parseJSON x
-payloadParser "ForkEvent"                     x = ForkEventPayload                     <$> parseJSON x
-payloadParser "ReleaseEvent"                  x = ReleaseEventPayload                  <$> parseJSON x
-payloadParser "GollumEvent"                   x = GollumEventPayload                   <$> parseJSON x
-payloadParser "MemberEvent"                   x = MemberEventPayload                   <$> parseJSON x
-payloadParser "PublicEvent"                   x = PublicEventPayload                   <$> parseJSON x
-payloadParser eventType           _ = fail $ "payloadParser: Unknown event type: " <> unpack eventType
+eventPayloadParsers :: [(Text, Text, Value -> Parser Payload)]
+eventPayloadParsers =
+    [ ( "CommitCommentEvent", "commit_comment"
+      , fmap CommitCommentEventPayload . parseJSON)
+
+    , ( "DeploymentEvent", "deployment"
+      , fmap DeploymentEventPayload . parseJSON)
+
+    , ( "DeploymentStatusEvent", "deployment_status"
+      , fmap DeploymentStatusEventPayload . parseJSON)
+
+    , ( "PushEvent", "push"
+      , fmap PushEventPayload . parseJSON)
+
+    , ( "IssuesEvent", "issues"
+      , fmap IssuesEventPayload . parseJSON)
+
+    , ( "IssueCommentEvent", "issue_comment"
+      , fmap IssueCommentEventPayload . parseJSON)
+
+    , ( "CreateEvent", "create"
+      , fmap CreateEventPayload . parseJSON)
+
+    , ( "PullRequestEvent", "pull_request"
+      , fmap PullRequestEventPayload . parseJSON)
+
+    , ( "PullRequestReviewCommentEvent", "pull_request_review_comment"
+      , fmap PullRequestReviewCommentEventPayload . parseJSON)
+
+    , ( "WatchEvent", "watch"
+      , fmap WatchEventPayload . parseJSON)
+
+    , ( "DeleteEvent", "delete"
+      , fmap DeleteEventPayload . parseJSON)
+
+    , ( "ForkEvent", "fork"
+      , fmap ForkEventPayload . parseJSON)
+
+    , ( "ReleaseEvent", "release"
+      , fmap ReleaseEventPayload . parseJSON)
+
+    , ( "GollumEvent", "gollum"
+      , fmap GollumEventPayload . parseJSON)
+
+    , ( "MemberEvent", "member"
+      , fmap MemberEventPayload . parseJSON)
+
+    , ( "PublicEvent", "public"
+      , fmap PublicEventPayload . parseJSON)
+    ]
+
+
+
+eventPayloadParser :: Text -> Value -> Parser Payload
+eventPayloadParser eventType x = case find (\(t, _, _) -> t == eventType) eventPayloadParsers of
+    Nothing -> fail $ "eventPayloadParser: Unknown event type: " <> unpack eventType
+    Just (_, _, p) -> p x
 
 -- | Since the event type is included through different means (X-GitHub-Event
 -- header, or inline in the JSON object), it's not possible to make 'Event'
 -- an instance of 'FromJSON'. But if you know the type, you can use this
 -- parser.
-eventParser :: Text -> Value -> Parser Payload
-eventParser "commit_comment"    x = CommitCommentEventPayload    <$> parseJSON x
-eventParser "deployment"        x = DeploymentEventPayload       <$> parseJSON x
-eventParser "deployment_status" x = DeploymentStatusEventPayload <$> parseJSON x
-eventParser eventType           _ = fail $ "Unknown event type: " <> unpack eventType
-
+webhookPayloadParser :: Text -> Value -> Parser Payload
+webhookPayloadParser eventType x =  case find (\(_, t, _) -> t == eventType) eventPayloadParsers of
+    Nothing -> fail $ "webhookPayloadParser: Unknown event type: " <> unpack eventType
+    Just (_, _, p) -> p x
 
 
 ------------------------------------------------------------------------------

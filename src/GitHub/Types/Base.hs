@@ -72,3 +72,53 @@ instance ToJSON State where
     toJSON Success = String "success"
     toJSON Failure = String "failure"
     toJSON Error   = String "error"
+
+
+
+------------------------------------------------------------------------------
+-- Deployment
+
+data Deployment = Deployment
+    { deploymentId          :: Int
+    , deploymentSha         :: Text
+    , deploymentRef         :: Text
+    , deploymentTask        :: Text
+    , deploymentEnvironment :: Text
+    , deploymentPayload     :: Value
+    , deploymentDescription :: Text
+    } deriving (Eq, Show)
+
+instance FromJSON Deployment where
+    parseJSON (Object x) = Deployment
+        <$> x .: "id"
+        <*> x .: "sha"
+        <*> x .: "ref"
+        <*> x .: "task"
+        <*> x .: "environment"
+        <*> x .: "payload"
+        <*> x .: "description"
+
+    parseJSON _ = mzero
+
+
+
+------------------------------------------------------------------------------
+-- DeploymentStatus
+
+data DeploymentStatus = DeploymentStatus
+    { deploymentStatusId             :: Int
+    , deploymentStatusState          :: Text
+    , deploymentStatusTargetUrl      :: Maybe Text
+    , deploymentStatusDescription    :: Maybe Text
+    , deploymentStatusDeploymentUrl  :: Maybe Text
+    } deriving (Eq, Show)
+
+instance FromJSON DeploymentStatus where
+    parseJSON (Object x) = DeploymentStatus
+        <$> x .: "id"
+        <*> x .: "state"
+        <*> x .: "target_url"
+        <*> x .: "description"
+        <*> x .: "deployment_url"
+
+    parseJSON _ = mzero

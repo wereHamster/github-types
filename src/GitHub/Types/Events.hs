@@ -71,16 +71,16 @@ instance FromJSON EventRepo where
 
 
 data EventPayload
-    = CommitCommentEventType    CommitCommentEvent
-    | DeploymentEventType       DeploymentEvent
-    | DeploymentStatusEventType DeploymentStatusEvent
+    = CommitCommentEventPayload    CommitCommentEvent
+    | DeploymentEventPayload       DeploymentEvent
+    | DeploymentStatusEventPayload DeploymentStatusEvent
     deriving (Eq, Show)
 
 
 eventPayloadParser :: Text -> Value -> Parser EventPayload
-eventPayloadParser "CommitCommentEvent"    x = CommitCommentEventType    <$> parseJSON x
-eventPayloadParser "DeploymentEvent"       x = DeploymentEventType       <$> parseJSON x
-eventPayloadParser "DeploymentStatusEvent" x = DeploymentStatusEventType <$> parseJSON x
+eventPayloadParser "CommitCommentEvent"    x = CommitCommentEventPayload    <$> parseJSON x
+eventPayloadParser "DeploymentEvent"       x = DeploymentEventPayload       <$> parseJSON x
+eventPayloadParser "DeploymentStatusEvent" x = DeploymentStatusEventPayload <$> parseJSON x
 eventPayloadParser eventType           _ = fail $ "eventPayloadParser: Unknown event type: " <> unpack eventType
 
 -- | Since the event type is included through different means (X-GitHub-Event
@@ -88,9 +88,9 @@ eventPayloadParser eventType           _ = fail $ "eventPayloadParser: Unknown e
 -- an instance of 'FromJSON'. But if you know the type, you can use this
 -- parser.
 eventParser :: Text -> Value -> Parser EventPayload
-eventParser "commit_comment"    x = CommitCommentEventType    <$> parseJSON x
-eventParser "deployment"        x = DeploymentEventType       <$> parseJSON x
-eventParser "deployment_status" x = DeploymentStatusEventType <$> parseJSON x
+eventParser "commit_comment"    x = CommitCommentEventPayload    <$> parseJSON x
+eventParser "deployment"        x = DeploymentEventPayload       <$> parseJSON x
+eventParser "deployment_status" x = DeploymentStatusEventPayload <$> parseJSON x
 eventParser eventType           _ = fail $ "Unknown event type: " <> unpack eventType
 
 

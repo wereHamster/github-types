@@ -48,7 +48,7 @@ spec httpManager = do
     describe "GitHub.Types.Event" $ do
         it "should parse all events from the public timeline" $ flip shouldReturn True $ do
           req <- parseUrl $ "https://api.github.com/events"
-          body <- httpLbs (req { requestHeaders = ("User-Agent", "githb-types-haskell-test") : requestHeaders req }) httpManager
+          body <- httpLbs (req { requestHeaders = ("User-Agent", "github-types-haskell-test") : requestHeaders req }) httpManager
 
           case eitherDecode (responseBody body) :: Either String [Value] of
               Left e -> fail $ "Failed to parse response as list of JSON values: " <> e

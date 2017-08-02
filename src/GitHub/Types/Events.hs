@@ -14,7 +14,6 @@ import Data.Time
 import Data.List
 
 import GitHub.Types.Base
-import GitHub.Types.Repository
 
 
 
